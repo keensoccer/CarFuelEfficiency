@@ -17,6 +17,7 @@ namespace CarFuelEfficiency
             PrintTopNCarsByFuelEfficiences(cars, 6);
             Console.WriteLine("*****************************");
             PrintCarStatistics(cars);
+            Console.WriteLine("*****************************");
 
             Console.ReadLine();
         }
