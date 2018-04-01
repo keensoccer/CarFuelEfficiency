@@ -10,16 +10,24 @@ namespace CarFuelEfficiency
     {
         static void Main(string[] args)
         {
-            var manufacturers = File.ReadAllLines("manufacturers.csv.txt");
+            var manufacturers = Manufacturer.ManufacturerFileToListOfCar2s("manufacturers.csv");
 
             var cars = Car.CarFileToListOfCars("fuel.csv");
 
+            /*
             PrintTopNCarsByFuelEfficiences(cars, 6); //2nd parameter can be any number between 0 and 1204.
             Console.WriteLine("*****************************");
             PrintCarStatistics(cars);
             Console.WriteLine("*****************************");
+            */
 
-            
+            //PrintTopNCarsByFuelEfficiencesByHeadquarter(cars, manufacturers, 1);
+
+            //PrintTop2CarsByFuelEfficiencyByManufacturer(cars);
+
+            //PrintTop2CarsByFuelEfficiencyByManufacturerUsingExpressionSyntax(cars);
+
+            PrintTop2CarsByFuelEfficiencyByCountryUsingGroupJoin(cars, manufacturers);
 
             Console.ReadLine();
         }
@@ -38,21 +46,101 @@ namespace CarFuelEfficiency
             }
         }
 
-        public static void PrintTopNCarsByFuelEfficiencesByManufacturer(IEnumerable<Car> cars, string manufacturer, int n)
+        public static void PrintTopNCarsByFuelEfficiencesByHeadquarter(IEnumerable<Car> cars, IEnumerable<Manufacturer> manufacturers, int n)
         {
+            //var query =
+            //    from car in cars
+            //    join manufacturer in manufacturers on car.CompanyName equals manufacturer.CompanyName
+            //    group car by manufacturer.Country into newGroup
+            //    orderby manufacturer.Country descending, car.CombinedFE descending
+            //    select new
+            //    {
+            //        Headquarter = manufacturer.Country,
+            //        CombFuelEfficiencies = car.CombinedFE,
+            //        CarName = car.Model
+            //    };
+
+
+            //foreach (var car in query)
+            //{
+            //    Console.WriteLine($"{car.Headquarter},  {car.CombFuelEfficiencies}, {car.CarName}");
+            //}
+
 
         }
 
-        public static void PrintCarStatistics(IEnumerable<Car> cars)
+        public static void PrintTop2CarsByFuelEfficiencyByManufacturer(IEnumerable<Car> cars)
+        {
+            var query =
+                from car in cars
+                group car by car.CompanyName.ToUpper() into manufacturer
+                orderby manufacturer.Key
+                select manufacturer;
+
+            foreach (var group in query)
+            {
+                Console.WriteLine(group.Key);
+                foreach (var car in group.OrderByDescending(c => c.CombinedFE).Take(2))
+                {
+                    Console.WriteLine($"\t{car.Model} : {car.CombinedFE}");
+                }
+            }
+                
+        }
+
+        public static void PrintTop2CarsByFuelEfficiencyByCountryUsingGroupJoin(IEnumerable<Car> cars, IEnumerable<Manufacturer> manufacturers)
+        {
+            var query =
+                from manufacturer in manufacturers
+                join car in cars on manufacturer.CompanyName equals car.CompanyName
+                    into carGroup
+                orderby manufacturer.CompanyName
+                select new
+                {
+                    CompanyName = manufacturer.CompanyName,
+                    Headquarter = manufacturer.Country,
+                    cars = carGroup
+                };
+
+            foreach (var group in query)
+            {
+                Console.WriteLine($"{group.CompanyName}:{group.Headquarter}\n");
+                foreach (var car in group.cars.OrderByDescending(c => c.CombinedFE).Take(2))
+                {
+                    Console.WriteLine($"\t{car.Model} : {car.CombinedFE}");
+                }
+            }
+        }
+
+
+
+        public static void PrintTop2CarsByFuelEfficiencyByManufacturerUsingExpressionSyntax(IEnumerable<Car> cars)
+        {
+            var query =
+                cars.GroupBy(c => c.CompanyName.ToUpper())
+                    .OrderBy(g => g.Key);
+
+            foreach (var group in query)
+            {
+                Console.WriteLine(group.Key);
+                foreach (var car in group.OrderByDescending(c => c.CombinedFE).Take(2))
+                {
+                    Console.WriteLine($"\t{car.Model} : {car.CombinedFE}");
+                }
+            }
+
+        }
+
+            public static void PrintCarStatistics(IEnumerable<Car> cars)
         {
             var total = 0;
             var min = Int32.MaxValue;
             var max = Int32.MinValue;
-            var count = 0-1;
+            var count = 0;
             foreach (var car in cars)
             {
                 total += car.CombinedFE;
-                if(min > car.CombinedFE)
+                if (min > car.CombinedFE)
                 {
                     min = car.CombinedFE;
                 }

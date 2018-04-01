@@ -8,7 +8,7 @@ namespace CarFuelEfficiency
     class Car
     {
         public int Year { get; set; }
-        public string Manufacturer { get; set; }
+        public string CompanyName { get; set; }
         public string Model { get; set; }
         public double EngDisplay { get; set; }
         public int Cylinders { get; set; }
@@ -28,7 +28,7 @@ namespace CarFuelEfficiency
 
                 var car = new Car();
                 car.Year = int.Parse(carProperties[0]);
-                car.Manufacturer = carProperties[1];
+                car.CompanyName = carProperties[1];
                 car.Model = carProperties[2];
                 car.EngDisplay = double.Parse(carProperties[3]);
                 car.Cylinders = int.Parse(carProperties[4]);
